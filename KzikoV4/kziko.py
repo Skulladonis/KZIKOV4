@@ -114,14 +114,24 @@ def startprint():
         nitro = "Disabled"
 
     print(f'''{Fore.RESET}
-                        ███████╗██╗  ██╗███████╗████████╗███████╗██████╗ 
-                        ██╔════╝╚██╗██╔╝██╔════╝╚══██╔══╝██╔════╝██╔══██╗
-                        █████╗   ╚███╔╝ █████╗     ██║   █████╗  ██████╔╝
-                        ██╔══╝   ██╔██╗ ██╔══╝     ██║   ██╔══╝  ██╔══██╗
-                        ███████╗██╔╝ ██╗███████╗   ██║   ███████╗██║  ██║
-                        ╚══════╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                                                 
 
+                                                 
+{Fore.RED}KKKKKKKKK    KKKKKKKZZZZZZZZZZZZZZZZZZZIIIIIIIIIIKKKKKKKKK    KKKKKKK     OOOOOOOOO     
+{Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K   OO:::::::::OO   
+{Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K OO:::::::::::::OO 
+{Fore.RED}K:::::::K   K::::::KZ:::ZZZZZZZZ:::::Z II::::::IIK:::::::K   K::::::KO:::::::OOO:::::::O
+{Fore.RED}KK::::::K  K:::::KKKZZZZZ     Z:::::Z    I::::I  KK::::::K  K:::::KKKO::::::O   O::::::O
+{Fore.RED}  K:::::K K:::::K           Z:::::Z      I::::I    K:::::K K:::::K   O:::::O     O:::::O
+{Fore.RED}  K::::::K:::::K           Z:::::Z       I::::I    K::::::K:::::K    O:::::O     O:::::O
+{Fore.RED}  K:::::::::::K           Z:::::Z        I::::I    K:::::::::::K     O:::::O     O:::::O
+{Fore.RED}  K:::::::::::K          Z:::::Z         I::::I    K:::::::::::K     O:::::O     O:::::O
+{Fore.RED}  K::::::K:::::K        Z:::::Z          I::::I    K::::::K:::::K    O:::::O     O:::::O
+{Fore.RED}  K:::::K K:::::K      Z:::::Z           I::::I    K:::::K K:::::K   O:::::O     O:::::O
+{Fore.RED}KK::::::K  K:::::KKKZZZ:::::Z     ZZZZZ  I::::I  KK::::::K  K:::::KKKO::::::O   O::::::O
+{Fore.RED}K:::::::K   K::::::KZ::::::ZZZZZZZZ:::ZII::::::IIK:::::::K   K::::::KO:::::::OOO:::::::O
+{Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K OO:::::::::::::OO 
+{Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K   OO:::::::::OO   
+{Fore.RED}KKKKKKKKK    KKKKKKKZZZZZZZZZZZZZZZZZZZIIIIIIIIIIKKKKKKKKK    KKKKKKK     OOOOOOOOO 
                        {Fore.CYAN}Kziko v{SELFBOT.__version__} | {Fore.GREEN}Logged in as: {Exeter.user.name}#{Exeter.user.discriminator} {Fore.CYAN}| ID: {Fore.GREEN}{Exeter.user.id}   
                        {Fore.CYAN}Nitro Sniper | {Fore.GREEN}{nitro}
                        {Fore.CYAN}Cached Users: {Fore.GREEN}{len(Exeter.users)}
